@@ -5,10 +5,18 @@
  */
 package interfaces;
 
+import dao.YearSemDao;
+import db.DBconnect;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import net.proteanit.sql.DbUtils;
 
 /**
  *
@@ -19,6 +27,11 @@ public class StudentsPage extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame1t
      */
+    
+    PreparedStatement pst;
+    YearSemDao yearSem = new YearSemDao();
+    DBconnect dbConnection = new DBconnect();
+    
     public StudentsPage() {
         initComponents();
         viewTab.setBackground(Color.GRAY);
@@ -28,6 +41,9 @@ public class StudentsPage extends javax.swing.JFrame {
         groupFrame.setVisible(false); 
         subgroupFrame.setVisible(false);
         notavailableFrame.setVisible(false);
+        
+        year_sem_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Year and Semester","Short Code"}));
+        yearSem.loadAllYearSemesters(year_sem_table);
         
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -86,6 +102,7 @@ public class StudentsPage extends javax.swing.JFrame {
         year_sem_editBtn = new javax.swing.JButton();
         year_sem_deleteBtn = new javax.swing.JButton();
         year_sem_clearBtn = new javax.swing.JButton();
+        year_sem_id = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
@@ -519,18 +536,38 @@ public class StudentsPage extends javax.swing.JFrame {
         year_sem_addBtn.setBackground(new java.awt.Color(51, 153, 255));
         year_sem_addBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         year_sem_addBtn.setText("ADD");
+        year_sem_addBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                year_sem_addBtnActionPerformed(evt);
+            }
+        });
 
         year_sem_editBtn.setBackground(new java.awt.Color(51, 153, 255));
         year_sem_editBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         year_sem_editBtn.setText("EDIT");
+        year_sem_editBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                year_sem_editBtnActionPerformed(evt);
+            }
+        });
 
         year_sem_deleteBtn.setBackground(new java.awt.Color(51, 153, 255));
         year_sem_deleteBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         year_sem_deleteBtn.setText("DELETE");
+        year_sem_deleteBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                year_sem_deleteBtnActionPerformed(evt);
+            }
+        });
 
         year_sem_clearBtn.setBackground(new java.awt.Color(51, 153, 255));
         year_sem_clearBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         year_sem_clearBtn.setText("CLEAR");
+        year_sem_clearBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                year_sem_clearBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -541,19 +578,23 @@ public class StudentsPage extends javax.swing.JFrame {
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel11)
-                            .addComponent(jLabel10))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(year_sem_combo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(year_sem_deleteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(year_sem_editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(year_sem_addBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(year_sem_clearBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel11)
+                            .addComponent(jLabel10))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(year_sem_combo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addComponent(year_sem_id, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -561,7 +602,9 @@ public class StudentsPage extends javax.swing.JFrame {
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addGap(7, 7, 7)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
+                .addGap(21, 21, 21)
+                .addComponent(year_sem_id, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel10)
@@ -596,7 +639,7 @@ public class StudentsPage extends javax.swing.JFrame {
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel9)
-                .addContainerGap(370, Short.MAX_VALUE))
+                .addContainerGap(355, Short.MAX_VALUE))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -609,7 +652,13 @@ public class StudentsPage extends javax.swing.JFrame {
 
         year_sem_tbl_srchBtn.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
         year_sem_tbl_srchBtn.setText("SEARCH");
+        year_sem_tbl_srchBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                year_sem_tbl_srchBtnActionPerformed(evt);
+            }
+        });
 
+        year_sem_table.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         year_sem_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -621,11 +670,22 @@ public class StudentsPage extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        year_sem_table.setRowHeight(28);
+        year_sem_table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                year_sem_tableMouseClicked(evt);
+            }
+        });
         jScrollPane3.setViewportView(year_sem_table);
 
         year_sem_tbl_rfshBtn.setBackground(new java.awt.Color(51, 153, 255));
         year_sem_tbl_rfshBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         year_sem_tbl_rfshBtn.setText("REFRESH");
+        year_sem_tbl_rfshBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                year_sem_tbl_rfshBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -1521,7 +1581,7 @@ public class StudentsPage extends javax.swing.JFrame {
                             .addComponent(subgrp_id_clearBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(20, 20, 20))
                     .addGroup(jPanel24Layout.createSequentialGroup()
-                        .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                        .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(subgrp_id_table_rfshBtn)
                         .addGap(16, 16, 16))))
@@ -1579,7 +1639,7 @@ public class StudentsPage extends javax.swing.JFrame {
                 .addGap(13, 13, 13)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(allPanels, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(allPanels, javax.swing.GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -1694,6 +1754,211 @@ public class StudentsPage extends javax.swing.JFrame {
     private void view_stSubDrp_rfshBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_view_stSubDrp_rfshBtnActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_view_stSubDrp_rfshBtnActionPerformed
+
+    private void year_sem_addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_year_sem_addBtnActionPerformed
+        // TODO add your handling code here:
+        if(year_sem_combo.getSelectedItem().equals("")){
+            JOptionPane.showMessageDialog(rootPane, "Input Field is Empty", "Fill Details Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else if(year_sem_combo.getSelectedItem().equals("Please Select")){
+            JOptionPane.showMessageDialog(rootPane, "Please select Year and Semester", "Fill Details Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            int x = JOptionPane.showConfirmDialog(null, "Do You Want To Add this Year and Semester ?");
+            
+            if(x == 0){
+                String yearNsem = (String) year_sem_combo.getSelectedItem();
+                String ysShortCode = null;
+                
+                if(yearNsem.equalsIgnoreCase("Year 1 Semester 1") ){
+                   ysShortCode = "Y1.S1";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 1 Semester 2") ){
+                   ysShortCode = "Y1.S2";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 2 Semester 1") ){
+                   ysShortCode = "Y2.S1";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 2 Semester 2") ){
+                   ysShortCode = "Y2.S2";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 3 Semester 1") ){
+                   ysShortCode = "Y3.S1";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 3 Semester 2") ){
+                   ysShortCode = "Y3.S2";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 4 Semester 1") ){
+                   ysShortCode = "Y4.S1";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 4 Semester 2") ){
+                   ysShortCode = "Y4.S2";
+                }
+                else{
+                    JOptionPane.showMessageDialog(rootPane, "Inputs are invalid", "Fill Details Error", JOptionPane.ERROR_MESSAGE);
+                }
+                
+                try {
+                    if(yearSem.addYearSem(yearNsem,ysShortCode)){
+                    JOptionPane.showMessageDialog(rootPane, "Year and Semester Added Successfully", "Add Year and Semester", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(rootPane, "Already exists or inavid data. Please check...", "Fill Details Error", JOptionPane.ERROR_MESSAGE);
+                    }  
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(rootPane, "Data Not Inserted", "Add Year and Semester", JOptionPane.WARNING_MESSAGE);
+            }
+            
+        }
+        
+        year_sem_id.setText("");
+        year_sem_combo.setSelectedItem("Please Select");
+              
+        year_sem_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Year and Semester","Short Code"}));
+        yearSem.loadAllYearSemesters(year_sem_table);
+    }//GEN-LAST:event_year_sem_addBtnActionPerformed
+
+    private void year_sem_editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_year_sem_editBtnActionPerformed
+        // TODO add your handling code here:
+        if(year_sem_combo.getSelectedItem().equals("") || year_sem_id.getText().equals("")){
+            JOptionPane.showMessageDialog(rootPane, "Please select row in the table OR Invalid Data", "Edit Details Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else if(year_sem_combo.getSelectedItem().equals("Please Select")){
+            JOptionPane.showMessageDialog(rootPane, "Please select Year and Semester", "Edit Details Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            int x = JOptionPane.showConfirmDialog(null, "Do You Want To Edit this Year and Semester ?");
+            
+            if(x == 0){
+                int id = Integer.valueOf(year_sem_id.getText());
+                String yearNsem = (String) year_sem_combo.getSelectedItem();
+                String ysShortCode = null;
+                
+                if(yearNsem.equalsIgnoreCase("Year 1 Semester 1") ){
+                   ysShortCode = "Y1.S1";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 1 Semester 2") ){
+                   ysShortCode = "Y1.S2";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 2 Semester 1") ){
+                   ysShortCode = "Y2.S1";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 2 Semester 2") ){
+                   ysShortCode = "Y2.S2";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 3 Semester 1") ){
+                   ysShortCode = "Y3.S1";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 3 Semester 2") ){
+                   ysShortCode = "Y3.S2";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 4 Semester 1") ){
+                   ysShortCode = "Y4.S1";
+                }
+                else if(yearNsem.equalsIgnoreCase("Year 4 Semester 2") ){
+                   ysShortCode = "Y4.S2";
+                }
+                else{
+                    JOptionPane.showMessageDialog(rootPane, "Inputs are invalid", "Edit Details Error", JOptionPane.ERROR_MESSAGE);
+                }
+                
+                try {
+                    if(yearSem.editYearSemester(id,yearNsem,ysShortCode)){
+                    JOptionPane.showMessageDialog(rootPane, "Year and Semester Edit Successfully", "Edit Year and Semester", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(rootPane, "Already exists or inavid data. Please check...", "Edit Details Error", JOptionPane.ERROR_MESSAGE);
+                    }  
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(rootPane, "Data Not Updated", "Edit Year and Semester", JOptionPane.WARNING_MESSAGE);
+            }
+            
+        }
+        year_sem_id.setText("");
+        year_sem_combo.setSelectedItem("Please Select");
+        
+        year_sem_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Year and Semester","Short Code"}));
+        yearSem.loadAllYearSemesters(year_sem_table);
+    }//GEN-LAST:event_year_sem_editBtnActionPerformed
+
+    private void year_sem_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_year_sem_tableMouseClicked
+        // TODO add your handling code here:
+        DefaultTableModel model = (DefaultTableModel) year_sem_table.getModel();      
+        
+        int rIndex = year_sem_table.getSelectedRow();
+        year_sem_id.setText(model.getValueAt(rIndex, 0).toString());
+        year_sem_combo.setSelectedItem(model.getValueAt(rIndex, 1).toString());
+    }//GEN-LAST:event_year_sem_tableMouseClicked
+
+    private void year_sem_deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_year_sem_deleteBtnActionPerformed
+        // TODO add your handling code here:
+        if(year_sem_combo.getSelectedItem().equals("") || year_sem_id.getText().equals("")){
+            JOptionPane.showMessageDialog(rootPane, "Please select row in the table OR Invalid Data", "Delete Details Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else if(year_sem_combo.getSelectedItem().equals("Please Select")){
+            JOptionPane.showMessageDialog(rootPane, "Please select Year and Semester", "Delete Details Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            int x = JOptionPane.showConfirmDialog(null, "Do You Want To Delete this Year and Semester ?");
+            
+            if(x == 0){
+                int id = Integer.valueOf(year_sem_id.getText());               
+                try {
+                    if(yearSem.deleteYearSemester(id)){
+                    JOptionPane.showMessageDialog(rootPane, "Year and Semester Delete Successfully", "Delete Year and Semester", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(rootPane, "Already exists or inavid data. Please check...", "Delete Details Error", JOptionPane.ERROR_MESSAGE);
+                    }  
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(rootPane, "Data Not Deleted", "Delete Year and Semester", JOptionPane.WARNING_MESSAGE);
+            }
+            
+        }
+        year_sem_id.setText("");
+        year_sem_combo.setSelectedItem("Please Select");
+        
+        year_sem_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Year and Semester","Short Code"}));
+        yearSem.loadAllYearSemesters(year_sem_table);
+        
+    }//GEN-LAST:event_year_sem_deleteBtnActionPerformed
+
+    private void year_sem_clearBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_year_sem_clearBtnActionPerformed
+        // TODO add your handling code here:
+        year_sem_id.setText("");
+        year_sem_combo.setSelectedItem("Please Select");
+    }//GEN-LAST:event_year_sem_clearBtnActionPerformed
+
+    private void year_sem_tbl_rfshBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_year_sem_tbl_rfshBtnActionPerformed
+        // TODO add your handling code here:
+        year_sem_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Year and Semester","Short Code"}));
+        yearSem.loadAllYearSemesters(year_sem_table);
+        year_sem_tbl_srchTxt.setText("");
+    }//GEN-LAST:event_year_sem_tbl_rfshBtnActionPerformed
+
+    private void year_sem_tbl_srchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_year_sem_tbl_srchBtnActionPerformed
+        // TODO add your handling code here:
+        try {
+            String fname = year_sem_tbl_srchTxt.getText();
+            year_sem_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Year and Semester","Short Code"}));
+            yearSem.searchYearSemesters(year_sem_table,fname);
+            
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }//GEN-LAST:event_year_sem_tbl_srchBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1899,6 +2164,7 @@ public class StudentsPage extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> year_sem_combo;
     private javax.swing.JButton year_sem_deleteBtn;
     private javax.swing.JButton year_sem_editBtn;
+    private javax.swing.JLabel year_sem_id;
     private javax.swing.JTable year_sem_table;
     private javax.swing.JButton year_sem_tbl_rfshBtn;
     private javax.swing.JButton year_sem_tbl_srchBtn;
