@@ -5,10 +5,18 @@
  */
 package interfaces;
 
+import dao.TagsDao;
+import db.DBconnect;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -19,11 +27,24 @@ public class TagsPage extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame1t
      */
+    PreparedStatement pst;
+    Connection con = null;
+    ResultSet rs = null;
+    
+    TagsDao tags = new TagsDao();
+    
     public TagsPage() {
         initComponents();
         viewTab.setBackground(Color.GRAY);
         viewFrame.setVisible(true);
         tagsFrame.setVisible(false);
+        con = DBconnect.createConnection();
+        
+        tag_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Tag Name"}));
+        tags.loadAllTags(tag_table);
+        
+        view_tags_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Tag Name"}));
+        tags.loadAllTags(view_tags_table);
         
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -42,6 +63,9 @@ public class TagsPage extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel29 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
@@ -76,6 +100,7 @@ public class TagsPage extends javax.swing.JFrame {
         tag_deleteBtn = new javax.swing.JButton();
         tag_clearBtn = new javax.swing.JButton();
         tag_add_txt = new javax.swing.JTextField();
+        tagIDtxt = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
@@ -89,18 +114,25 @@ public class TagsPage extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 51));
 
-        jPanel2.setBackground(new java.awt.Color(153, 153, 255));
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 110, Short.MAX_VALUE)
-        );
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/logo.png"))); // NOI18N
+        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        jButton1.setBackground(new java.awt.Color(51, 0, 51));
+        jButton1.setFont(new java.awt.Font("Sitka Text", 1, 18)); // NOI18N
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
+        jButton1.setText("Home");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 60, 90, 40));
+
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/header_image.png"))); // NOI18N
+        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 0, -1, -1));
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 51));
         jPanel3.setLayout(new java.awt.GridBagLayout());
@@ -271,6 +303,7 @@ public class TagsPage extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 361, 0, 462);
         jPanel5.add(jLabel7, gridBagConstraints);
 
+        view_tags_table.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         view_tags_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -282,6 +315,7 @@ public class TagsPage extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        view_tags_table.setRowHeight(28);
         jScrollPane2.setViewportView(view_tags_table);
 
         view_tags_rfshBtn.setBackground(new java.awt.Color(51, 153, 255));
@@ -297,6 +331,11 @@ public class TagsPage extends javax.swing.JFrame {
 
         view_tags_srchBtn.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
         view_tags_srchBtn.setText("SEARCH");
+        view_tags_srchBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                view_tags_srchBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout viewFrameLayout = new javax.swing.GroupLayout(viewFrame);
         viewFrame.setLayout(viewFrameLayout);
@@ -305,7 +344,7 @@ public class TagsPage extends javax.swing.JFrame {
             .addGroup(viewFrameLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(viewFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 1020, Short.MAX_VALUE)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 1006, Short.MAX_VALUE)
                     .addComponent(jScrollPane2)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, viewFrameLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
@@ -361,18 +400,38 @@ public class TagsPage extends javax.swing.JFrame {
         tag_addBtn.setBackground(new java.awt.Color(51, 153, 255));
         tag_addBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         tag_addBtn.setText("ADD");
+        tag_addBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tag_addBtnActionPerformed(evt);
+            }
+        });
 
         tag_editBtn.setBackground(new java.awt.Color(51, 153, 255));
         tag_editBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         tag_editBtn.setText("EDIT");
+        tag_editBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tag_editBtnActionPerformed(evt);
+            }
+        });
 
         tag_deleteBtn.setBackground(new java.awt.Color(51, 153, 255));
         tag_deleteBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         tag_deleteBtn.setText("DELETE");
+        tag_deleteBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tag_deleteBtnActionPerformed(evt);
+            }
+        });
 
         tag_clearBtn.setBackground(new java.awt.Color(51, 153, 255));
         tag_clearBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         tag_clearBtn.setText("CLEAR");
+        tag_clearBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tag_clearBtnActionPerformed(evt);
+            }
+        });
 
         tag_add_txt.setFont(new java.awt.Font("Times New Roman", 0, 20)); // NOI18N
 
@@ -393,9 +452,13 @@ public class TagsPage extends javax.swing.JFrame {
                             .addComponent(tag_clearBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(24, 24, 24)
                         .addComponent(jLabel10)
                         .addGap(18, 18, 18)
-                        .addComponent(tag_add_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(tag_add_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tagIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -403,7 +466,9 @@ public class TagsPage extends javax.swing.JFrame {
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addGap(7, 7, 7)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(41, 41, 41)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tagIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tag_add_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10))
@@ -415,7 +480,7 @@ public class TagsPage extends javax.swing.JFrame {
                 .addComponent(tag_deleteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(tag_clearBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
 
         jPanel7.setBackground(new java.awt.Color(204, 204, 255));
@@ -433,7 +498,7 @@ public class TagsPage extends javax.swing.JFrame {
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel9)
-                .addContainerGap(506, Short.MAX_VALUE))
+                .addContainerGap(484, Short.MAX_VALUE))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -446,7 +511,13 @@ public class TagsPage extends javax.swing.JFrame {
 
         tag_tbl_srchBtn.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
         tag_tbl_srchBtn.setText("SEARCH");
+        tag_tbl_srchBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tag_tbl_srchBtnActionPerformed(evt);
+            }
+        });
 
+        tag_table.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         tag_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -458,11 +529,22 @@ public class TagsPage extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tag_table.setRowHeight(28);
+        tag_table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tag_tableMouseClicked(evt);
+            }
+        });
         jScrollPane3.setViewportView(tag_table);
 
         tag_tbl_rfshBtn.setBackground(new java.awt.Color(51, 153, 255));
         tag_tbl_rfshBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         tag_tbl_rfshBtn.setText("REFRESH");
+        tag_tbl_rfshBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tag_tbl_rfshBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -527,7 +609,7 @@ public class TagsPage extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(allPanels, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(allPanels, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -569,7 +651,170 @@ public class TagsPage extends javax.swing.JFrame {
 
     private void view_tags_rfshBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_view_tags_rfshBtnActionPerformed
         // TODO add your handling code here:
+        view_tags_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Tag Name"}));
+        tags.loadAllTags(view_tags_table);
+        view_tags_srchTxt.setText("");
     }//GEN-LAST:event_view_tags_rfshBtnActionPerformed
+
+    private void tag_addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tag_addBtnActionPerformed
+        // TODO add your handling code here:
+        if(tag_add_txt.getText().equals("")){
+            JOptionPane.showMessageDialog(rootPane, "Input Field is Empty", "Fill Details Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            int x = JOptionPane.showConfirmDialog(null, "Do You Want To Add this Tag ?");
+            
+            if(x == 0){
+                String tag = tag_add_txt.getText();
+                
+                try {
+                    if(tags.addTag(tag)){
+                    JOptionPane.showMessageDialog(rootPane, "Tag Added Successfully", "Add Tag", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(rootPane, "Already exists or inavid data. Please check...", "Fill Details Error", JOptionPane.ERROR_MESSAGE);
+                    }  
+                } 
+                catch (HeadlessException e) {
+                    System.out.println(e);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(rootPane, "Data Not Inserted", "Add Tag", JOptionPane.WARNING_MESSAGE);
+            }
+            
+        }
+        
+        tagIDtxt.setText("");
+        tag_add_txt.setText("");
+              
+        tag_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Tag Name"}));
+        tags.loadAllTags(tag_table);
+    }//GEN-LAST:event_tag_addBtnActionPerformed
+
+    private void tag_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tag_tableMouseClicked
+        // TODO add your handling code here:
+        DefaultTableModel model = (DefaultTableModel) tag_table.getModel();      
+        
+        int rIndex = tag_table.getSelectedRow();
+        tagIDtxt.setText(model.getValueAt(rIndex, 0).toString());
+        tag_add_txt.setText(model.getValueAt(rIndex, 1).toString());
+    }//GEN-LAST:event_tag_tableMouseClicked
+
+    private void tag_editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tag_editBtnActionPerformed
+        // TODO add your handling code here:
+        if(tag_add_txt.getText().equals("") || tagIDtxt.getText().equals("")){
+            JOptionPane.showMessageDialog(rootPane, "Please select row in the table OR Invalid Data", "Edit Details Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            int x = JOptionPane.showConfirmDialog(null, "Do You Want To Edit this Tag ?");
+            
+            if(x == 0){
+                int id = Integer.valueOf(tagIDtxt.getText());
+                String tag = tag_add_txt.getText();
+                
+                try {
+                    if(tags.editTag(id,tag)){
+                    JOptionPane.showMessageDialog(rootPane, "Tag Edit Successfully", "Edit Tag", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(rootPane, "Already exists or inavid data. Please check...", "Edit Details Error", JOptionPane.ERROR_MESSAGE);
+                    }  
+                } 
+                catch (HeadlessException e) {
+                    System.out.println(e);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(rootPane, "Data Not Updated", "Edit Tag", JOptionPane.WARNING_MESSAGE);
+            }
+            
+        }
+        
+        tagIDtxt.setText("");
+        tag_add_txt.setText("");
+              
+        tag_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Tag Name"}));
+        tags.loadAllTags(tag_table);
+    }//GEN-LAST:event_tag_editBtnActionPerformed
+
+    private void tag_deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tag_deleteBtnActionPerformed
+        // TODO add your handling code here:
+        if(tag_add_txt.getText().equals("") || tagIDtxt.getText().equals("")){
+            JOptionPane.showMessageDialog(rootPane, "Please select row in the table OR Invalid Data", "Delete Details Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            int x = JOptionPane.showConfirmDialog(null, "Do You Want To Delete this Tag ?");
+            
+            if(x == 0){
+                int id = Integer.valueOf(tagIDtxt.getText());               
+                try {
+                    if(tags.deleteTag(id)){
+                    JOptionPane.showMessageDialog(rootPane, "Tag Delete Successfully", "Delete Tag", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(rootPane, "Already exists or inavid data. Please check...", "Delete Details Error", JOptionPane.ERROR_MESSAGE);
+                    }  
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(rootPane, "Data Not Deleted", "Delete Tag", JOptionPane.WARNING_MESSAGE);
+            }
+            
+        }
+        tagIDtxt.setText("");
+        tag_add_txt.setText("");
+              
+        tag_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Tag Name"}));
+        tags.loadAllTags(tag_table);
+    }//GEN-LAST:event_tag_deleteBtnActionPerformed
+
+    private void tag_clearBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tag_clearBtnActionPerformed
+        // TODO add your handling code here:
+        tagIDtxt.setText("");
+        tag_add_txt.setText("");
+    }//GEN-LAST:event_tag_clearBtnActionPerformed
+
+    private void tag_tbl_srchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tag_tbl_srchBtnActionPerformed
+        // TODO add your handling code here:
+        try {
+            String tag = tag_tbl_srchTxt.getText();
+            tag_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Tag Name"}));
+            tags.searchTag(tag_table,tag);
+            
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }//GEN-LAST:event_tag_tbl_srchBtnActionPerformed
+
+    private void tag_tbl_rfshBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tag_tbl_rfshBtnActionPerformed
+        // TODO add your handling code here:
+        tag_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Tag Name"}));
+        tags.loadAllTags(tag_table);
+        tag_tbl_srchTxt.setText("");
+    }//GEN-LAST:event_tag_tbl_rfshBtnActionPerformed
+
+    private void view_tags_srchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_view_tags_srchBtnActionPerformed
+        // TODO add your handling code here:
+        try {
+            String tag = view_tags_srchTxt.getText();
+            view_tags_table.setModel(new DefaultTableModel(null, new Object[]{"ID","Tag Name"}));
+            tags.searchTag(view_tags_table,tag);
+            
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }//GEN-LAST:event_view_tags_srchBtnActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        HomePage homePage = new HomePage();
+        homePage.setVisible(true);
+        homePage.setLocationRelativeTo(null);
+        this.dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -671,14 +916,17 @@ public class TagsPage extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel allPanels;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel28;
     private javax.swing.JLabel jLabel29;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel32;
     private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
@@ -697,6 +945,7 @@ public class TagsPage extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JLabel tagIDtxt;
     private javax.swing.JButton tag_addBtn;
     private javax.swing.JTextField tag_add_txt;
     private javax.swing.JButton tag_clearBtn;
