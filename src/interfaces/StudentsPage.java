@@ -225,7 +225,7 @@ public class StudentsPage extends javax.swing.JFrame {
         jPanel8 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        year_sem_combo = new javax.swing.JComboBox<>();
+        year_sem_combo = new javax.swing.JComboBox<String>();
         jLabel11 = new javax.swing.JLabel();
         year_sem_addBtn = new javax.swing.JButton();
         year_sem_editBtn = new javax.swing.JButton();
@@ -284,9 +284,9 @@ public class StudentsPage extends javax.swing.JFrame {
         jLabel18 = new javax.swing.JLabel();
         jScrollPane6 = new javax.swing.JScrollPane();
         grp_id_table = new javax.swing.JTable();
-        grp_id_year_combo = new javax.swing.JComboBox<>();
-        grp_id_programme_combo = new javax.swing.JComboBox<>();
-        grp_id_grpNo_combo = new javax.swing.JComboBox<>();
+        grp_id_year_combo = new javax.swing.JComboBox<String>();
+        grp_id_programme_combo = new javax.swing.JComboBox<String>();
+        grp_id_grpNo_combo = new javax.swing.JComboBox<String>();
         jLabel21 = new javax.swing.JLabel();
         jLabel22 = new javax.swing.JLabel();
         jLabel23 = new javax.swing.JLabel();
@@ -324,8 +324,8 @@ public class StudentsPage extends javax.swing.JFrame {
         jLabel27 = new javax.swing.JLabel();
         jScrollPane8 = new javax.swing.JScrollPane();
         subgrp_id_table = new javax.swing.JTable();
-        subgrp_id_grp_combo = new javax.swing.JComboBox<>();
-        subgrp_id_grpNo_combo = new javax.swing.JComboBox<>();
+        subgrp_id_grp_combo = new javax.swing.JComboBox<String>();
+        subgrp_id_grpNo_combo = new javax.swing.JComboBox<String>();
         jLabel29 = new javax.swing.JLabel();
         jLabel30 = new javax.swing.JLabel();
         subgrp_id_addBtn = new javax.swing.JButton();
@@ -690,7 +690,12 @@ public class StudentsPage extends javax.swing.JFrame {
         jLabel10.setText("Year &");
 
         year_sem_combo.setFont(new java.awt.Font("Sitka Text", 0, 22)); // NOI18N
-        year_sem_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Please Select", "Year 1 Semester 1", "Year 1 Semester 2", "Year 2 Semester 1", "Year 2 Semester 2", "Year 3 Semester 1", "Year 3 Semester 2", "Year 4 Semester 1", "Year 4 Semester 2" }));
+        year_sem_combo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Please Select", "Year 1 Semester 1", "Year 1 Semester 2", "Year 2 Semester 1", "Year 2 Semester 2", "Year 3 Semester 1", "Year 3 Semester 2", "Year 4 Semester 1", "Year 4 Semester 2" }));
+        year_sem_combo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                year_sem_comboActionPerformed(evt);
+            }
+        });
 
         jLabel11.setFont(new java.awt.Font("Sitka Text", 1, 20)); // NOI18N
         jLabel11.setText("Semester");
@@ -1547,7 +1552,11 @@ public class StudentsPage extends javax.swing.JFrame {
                             .addComponent(grp_id_editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(grp_id_deleteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(grp_id_clearBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+<<<<<<< HEAD
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+=======
+                        .addContainerGap(26, Short.MAX_VALUE))))
+>>>>>>> 292a7cc2d1be83f17397746b09e846846eededea
         );
 
         javax.swing.GroupLayout groupFrameLayout = new javax.swing.GroupLayout(groupFrame);
@@ -2365,6 +2374,7 @@ public class StudentsPage extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_year_sem_tbl_srchBtnActionPerformed
 
+<<<<<<< HEAD
     private void programme_addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_programme_addBtnActionPerformed
         // TODO add your handling code here:
         if(programme_add_txt.getText().equals("")){
@@ -3163,6 +3173,16 @@ public class StudentsPage extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_grp_id_year_comboMouseClicked
 
+=======
+    private void year_sem_comboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_year_sem_comboActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_year_sem_comboActionPerformed
+
+    private void grp_id_addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grp_id_addBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_grp_id_addBtnActionPerformed
+
+>>>>>>> 292a7cc2d1be83f17397746b09e846846eededea
     /**
      * @param args the command line arguments
      */
